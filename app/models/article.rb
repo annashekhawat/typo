@@ -415,6 +415,14 @@ class Article < Content
   def access_by?(user)
     user.admin? || user_id == user.id
   end
+  
+  def merge_with(other_article_id)
+    article = Article.find_by_id(other_article_id)
+
+    raise ActiveRecord::RecordNotFound if article.nil?
+
+    # merge and return
+  end
 
   protected
 

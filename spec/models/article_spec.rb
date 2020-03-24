@@ -630,5 +630,50 @@ describe Article do
     end
 
   end
+  
+  describe "#merge_with(other_article_id)" do
+    before do
+      @art1 = Factory(:article)
+      @art2 = Factory(:article)
+      @art3 = Factory(:article)
+    end
+
+    it "should raise RecordNotFound if id is invalid" do
+      id = @art3.id
+      @art3.destroy
+
+      expect{ @art1.merge_with(id) }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it "should return no error if id is valid" do
+      expect{ @art1.merge_with(@art2.id) }.to_not raise_error(ActiveRecord::RecordNotFound)
+    end
+    
+    it "should contain the same author as article1's" do
+      @merged_article = @art1.merge_with(@art2.id)
+
+      assert_equal @merged_article.author, @art1.author
+    end
+
+    it "should contain the same title as article1's" do
+      @merged_article = @art1.merge_with(@art2.id)
+
+      assert_equal @merged_article.title, @art1.title
+    end
+
+    it "should contain contents from both articles" do
+      expected_body = @art1.body + " " + @art2.body
+      @merged_article = @art1.merge_with(@art2.id)
+
+      assert_equal @merged_article.body, expected_body
+    end
+
+    it "should contain comments from both articles" do
+      @merged_article = @art1.merge_with(@art2.id)
+
+      assert_equal @merged_article.comments.size, @art1.comments.size + @art2.comments.size
+    end
+  end
+  
 end
 
